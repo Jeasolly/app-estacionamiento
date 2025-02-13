@@ -1,4 +1,4 @@
-# **App Estacionamiento
+# **App-Estacionamiento PARK ACCESS
 ## ****Versión 1.0.0 | Última actualización: 13/02/2025
 
 Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos y reserva de espacios. Permite a los usuarios realizar pagos, gestionar su cuenta y consultar estacionamientos disponibles de manera eficiente.
