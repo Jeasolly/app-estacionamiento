@@ -1,10 +1,10 @@
-App Estacionamiento
-Versión 1.0.0 | Última actualización: 13/02/2025
+# **App Estacionamiento
+## ****Versión 1.0.0 | Última actualización: 13/02/2025
 
 Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos y reserva de espacios. Permite a los usuarios realizar pagos, gestionar su cuenta y consultar estacionamientos disponibles de manera eficiente.
 
-📌 Change Log
-1.0.2 | 06/02/2025
+## 📌 **Change Log**
+### 1.0.2 | 06/02/2025
 Flutter Mobile App (Android)
 Implementación de la función "Mostrar/Ocultar Saldo".
 Rediseño de la pantalla de "Método de Pago" con mejor distribución.
@@ -36,7 +36,7 @@ Ajustes en los tamaños de los títulos para mejorar la legibilidad.
 Versión inicial con estructura base en Flutter.
 Creación de pantallas y navegación básica.
 Implementación del diseño inicial para todas las vistas.
-📂 Estructura del Proyecto
+### 📂 **Estructura del Proyecto**
 Controladores: Manejo de la lógica de cada pantalla.
 Modelos: Definición de las estructuras de datos utilizadas en la app.
 Servicios: Conexión con APIs y lógica de negocio.
@@ -45,43 +45,31 @@ Main.dart: Punto de entrada de la aplicación.
 Rutas.dart: Configuración de navegación entre pantallas.
 Tema.dart: Configuración de estilos globales.
 Utilidades: Funciones reutilizables y constantes globales.
-📱 Funcionalidades Actuales
+### 📱 Funcionalidades Actuales
 Inicio de Sesión y Registro con validaciones.
 Pantalla de Home con opciones rápidas como Pagar Voucher, Estacionamientos.
 Sección de Servicios con botones dinámicos.
 Método de Pago con selección de tarjetas guardadas.
 Visualización del saldo disponible y movimientos recientes en la cuenta.
-🚀 Cómo Ejecutar la Aplicación
-Clonar el repositorio
-bash
-Copiar
-Editar
+### 🚀 Cómo Ejecutar la Aplicación
+#### Clonar el repositorio
 git clone https://github.com/tuUsuario/app-estacionamiento.git
-Ingresar al directorio del proyecto
-bash
-Copiar
-Editar
+#### Ingresar al directorio del proyecto
 cd app-estacionamiento
-Instalar dependencias
-bash
-Copiar
-Editar
+#### Instalar dependencias
 flutter pub get
-Ejecutar la aplicación
-bash
-Copiar
-Editar
+#### Ejecutar la aplicación
 flutter run
 (Asegúrate de tener un emulador o dispositivo conectado).
-🔜 Próximos Pasos
+### 🔜 Próximos Pasos
 Integración con APIs para autenticación y pagos.
 Implementación de escaneo real de QR en la pantalla de "Pagar Voucher".
 Persistencia de sesión con SharedPreferences o SQLite.
 Optimización de la UI con animaciones y transiciones mejoradas.
-📜 Licencia
+### 📜 Licencia
 Este proyecto se distribuye bajo la licencia MIT.
 
-📞 Contacto y Soporte
+### 📞 Contacto y Soporte
 Email: jeangamarra1@gmail.com
 Repositorio GitHub: GitHub/app-estacionamiento
 ¡Gracias por contribuir al desarrollo de la App Estacionamiento!
