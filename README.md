@@ -2,31 +2,8 @@ Proyecto: App Estacionamiento
 Versión 1.0.0
 Este proyecto es una aplicación móvil en Flutter que facilita la gestión de estacionamientos y pagos. A lo largo de su desarrollo, hemos creado múltiples vistas, controladores, servicios y un sistema de rutas siguiendo un patrón de organización MVC. A continuación, se describe paso a paso el avance y las funcionalidades implementadas.
 
-Estructura del Proyecto
-bash
-Copiar
-Editar
-lib/
-├── Controladores/           # Controladores de la app (MVC)
-├── Modelos/                 # Modelos de datos
-├── Servicios/               # Clases para consumir APIs y lógica de negocio
-├── Vistas/                  # Pantallas (vistas) de la aplicación
-│   ├── bienvenida_vista.dart
-│   ├── codigo_licencia_vista.dart
-│   ├── inicio_sesion_vista.dart
-│   ├── registro_vista.dart
-│   ├── recuperar_contrasena_vista.dart
-│   ├── home_vista.dart
-│   ├── servicios_vista.dart
-│   ├── mapa_vista.dart
-│   ├── pagar_voucher_vista.dart
-│   ├── cuenta_vista.dart
-│   ├── metodo_pago_vista.dart
-│   ...
-├── main.dart                # Punto de entrada de la app
-├── rutas.dart               # Definición de rutas de navegación
-├── tema.dart                # Configuración de estilos globales
-└── utilidades/              # Constantes y funciones reutilizables
+![Uploading image.png…]()
+
 Funcionalidades Implementadas
 Pantalla de Bienvenida
 
