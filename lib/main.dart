@@ -1,19 +1,16 @@
-import 'package:flutter/material.dart'; //
-import 'rutas.dart'; //
-import 'tema.dart'; //
-import 'Vistas/bienvenida_vista.dart'; //
-import 'Vistas/codigo_licencia_vista.dart'; //
-import 'Vistas/inicio_sesion_vista.dart'; //
-import 'Vistas/registro_vista.dart'; //
-import 'Vistas/recuperar_contrasena_vista.dart'; //
-import 'Vistas/home_vista.dart'; //
-import 'Vistas/servicios_vista.dart'; //
-import 'Vistas/pagar_voucher_vista.dart'; //
-import 'Vistas/cuenta_vista.dart'; //
-import 'Vistas/metodo_pago_vista.dart'; //
-
-
-
+import 'package:flutter/material.dart';
+import 'rutas.dart';
+import 'tema.dart';
+import 'Vistas/bienvenida_vista.dart';
+import 'Vistas/codigo_licencia_vista.dart';
+import 'Vistas/inicio_sesion_vista.dart';
+import 'Vistas/registro_vista.dart';
+import 'Vistas/recuperar_contrasena_vista.dart';
+import 'Vistas/home_vista.dart';
+import 'Vistas/servicios_vista.dart';
+import 'Vistas/pagar_voucher_vista.dart';
+import 'Vistas/cuenta_vista.dart';
+import 'Vistas/metodo_pago_vista.dart';
 
 void main() {
   runApp(AccesoParqueoApp());
@@ -24,7 +21,7 @@ class AccesoParqueoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Park Access',
-      theme: TemaAplicacion.temaClaro, // Asegúrate de que tema.dart tenga esta clase
+      theme: TemaAplicacion.temaClaro, // Asegúrate de que "tema.dart" tenga esta clase
       initialRoute: '/',
       routes: {
         '/': (context) => BienvenidaVista(),
@@ -37,15 +34,8 @@ class AccesoParqueoApp extends StatelessWidget {
         '/pagar_voucher': (context) => PagarVoucherVista(),
         '/cuenta': (context) => CuentaVista(),
         '/metodo_pago': (context) => MetodoPagoVista(),
-
-
-
-
-
-
       },
       debugShowCheckedModeBanner: false,
     );
   }
 }
-
