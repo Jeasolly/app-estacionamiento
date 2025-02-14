@@ -1,4 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as p;
+import 'inicio_sesion_vista.dart';
 
 class CodigoLicenciaVista extends StatefulWidget {
   @override
@@ -7,12 +13,121 @@ class CodigoLicenciaVista extends StatefulWidget {
 
 class _CodigoLicenciaVistaState extends State<CodigoLicenciaVista> {
   final TextEditingController _codigoController = TextEditingController();
-  bool _mostrarCodigo = false;
+  String _message = "";
+  bool _isLoading = false;
+  final String _apiUrl = 'https://gamarracode.parkinventario.com/token.php';
 
-  void _verificarCodigo() {
-    if (_codigoController.text.isNotEmpty) {
-      Navigator.pushNamed(context, '/inicio_sesion');
+  @override
+  void initState() {
+    super.initState();
+    _verificarLicenciaGuardada();
+  }
+
+  Future<Database> _obtenerDB() async {
+    return openDatabase(
+      p.join(await getDatabasesPath(), 'licencia.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          "CREATE TABLE IF NOT EXISTS licencia (id INTEGER PRIMARY KEY, codigo TEXT)",
+        );
+      },
+      version: 1,
+    );
+  }
+
+  Future<void> _guardarLicenciaEnDB(String licencia) async {
+    final Database db = await _obtenerDB();
+    await db.insert(
+      'licencia',
+      {'id': 1, 'codigo': licencia},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<String?> _obtenerLicenciaDesdeDB() async {
+    final Database db = await _obtenerDB();
+    final List<Map<String, dynamic>> maps = await db.query('licencia');
+    if (maps.isNotEmpty) {
+      return maps.first['codigo'];
     }
+    return null;
+  }
+
+  Future<void> _verificarLicenciaGuardada() async {
+    String? licenciaGuardada = await _obtenerLicenciaDesdeDB();
+    print("Licencia guardada en SQLite: $licenciaGuardada");
+
+    if (licenciaGuardada != null && licenciaGuardada.isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => InicioSesionVista()),
+      );
+    }
+  }
+
+  Future<void> _saveAndValidateLicense() async {
+    setState(() {
+      _isLoading = true;
+      _message = "";
+    });
+
+    try {
+      String deviceId = await _getDeviceId();
+
+      if (deviceId.isEmpty || _codigoController.text.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _message = "Error: Device ID o licencia vacíos";
+        });
+        return;
+      }
+
+      Map<String, dynamic> body = {
+        'validar': true,
+        'licencia': _codigoController.text,
+        'device_id': deviceId,
+      };
+
+      print("Enviando solicitud a la API: ");
+      print(jsonEncode(body));
+
+      final response = await http.post(
+        Uri.parse(_apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      final responseData = jsonDecode(response.body);
+      print("Respuesta del servidor: $responseData");
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (responseData['status'] == 'success') {
+        await _guardarLicenciaEnDB(_codigoController.text);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => InicioSesionVista()),
+        );
+      } else {
+        setState(() {
+          _message = "Error del servidor: ${responseData['message']}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _message = "Error en la validación: ${e.toString()}";
+      });
+      print("Error en la validación: ${e.toString()}");
+    }
+  }
+
+  Future<String> _getDeviceId() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.id;
   }
 
   @override
@@ -56,7 +171,6 @@ class _CodigoLicenciaVistaState extends State<CodigoLicenciaVista> {
               SizedBox(height: 20),
               TextField(
                 controller: _codigoController,
-                obscureText: !_mostrarCodigo,
                 decoration: InputDecoration(
                   labelText: 'Licencia',
                   labelStyle: TextStyle(color: Colors.white70),
@@ -66,23 +180,14 @@ class _CodigoLicenciaVistaState extends State<CodigoLicenciaVista> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _mostrarCodigo ? Icons.visibility : Icons.visibility_off,
-                      color: Colors.white70,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _mostrarCodigo = !_mostrarCodigo;
-                      });
-                    },
-                  ),
                 ),
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _verificarCodigo,
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                onPressed: _saveAndValidateLicense,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -95,13 +200,10 @@ class _CodigoLicenciaVistaState extends State<CodigoLicenciaVista> {
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
-              SizedBox(height: 15),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Si no cuentas con una licencia adquiérela aquí',
-                  style: TextStyle(color: Colors.greenAccent, fontSize: 14),
-                ),
+              SizedBox(height: 10),
+              Text(
+                _message,
+                style: TextStyle(color: Colors.red),
               ),
             ],
           ),

@@ -5,13 +5,12 @@
 import FlutterMacOS
 import Foundation
 
-<<<<<<< HEAD
+import device_info_plus
 import shared_preferences_foundation
+import sqflite_darwin
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
-=======
-
-func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
->>>>>>> main
+  SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
 }
