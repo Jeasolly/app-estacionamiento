@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'servicios_vista.dart';
+import 'codigo_licencia_vista.dart';
+import 'inicio_sesion_vista.dart';
+import '../controladores/codigo_licencia_controlador.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as p;
 
 class HomeVista extends StatefulWidget {
   @override
@@ -7,6 +12,7 @@ class HomeVista extends StatefulWidget {
 }
 
 class _HomeVistaState extends State<HomeVista> {
+  final LicenciaController _controller = LicenciaController();
   int _indiceActual = 0;
 
   final List<Widget> _vistas = [
@@ -55,15 +61,11 @@ class PaginaHome extends StatefulWidget {
 }
 
 class _PaginaHomeState extends State<PaginaHome> {
-  // El saldo real que deseamos mostrar
   final double _saldo = 2.0;
-
-  // Controla si el saldo está oculto o visible
   bool _ocultarSaldo = true;
 
   @override
   Widget build(BuildContext context) {
-    // Texto y ícono que varían según _ocultarSaldo
     final icono = _ocultarSaldo ? Icons.visibility_off : Icons.visibility;
     final textoBoton = _ocultarSaldo ? 'Mostrar Saldo' : 'Ocultar Saldo';
 
@@ -80,7 +82,6 @@ class _PaginaHomeState extends State<PaginaHome> {
             ),
           ),
         ),
-        // Sección para mostrar/ocultar saldo
         Container(
           color: Colors.white,
           width: double.infinity,
@@ -102,7 +103,6 @@ class _PaginaHomeState extends State<PaginaHome> {
               ),
               Spacer(),
               Text(
-                // Si oculto, muestra ****; si visible, muestra S/ 2.00
                 _ocultarSaldo ? 'S/ ****' : 'S/ ${_saldo.toStringAsFixed(2)}',
                 style: TextStyle(color: Colors.blueGrey, fontSize: 16),
               ),
@@ -155,12 +155,36 @@ class _PaginaHomeState extends State<PaginaHome> {
 
 // ------------ PÁGINA PERFIL ------------
 class PaginaPerfil extends StatelessWidget {
+  Future<void> _cerrarSesion(BuildContext context) async {
+    final Database db = await openDatabase(
+      p.join(await getDatabasesPath(), 'licencia.db'),
+    );
+    await db.delete('licencia');
+    await db.close();
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => InicioSesionVista()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.blue.shade50,
       child: Center(
-        child: Text('Página de Perfil', style: TextStyle(fontSize: 18)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Perfil de Usuario', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _cerrarSesion(context),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -212,4 +236,3 @@ class BotonCircular extends StatelessWidget {
     );
   }
 }
-
