@@ -4,7 +4,7 @@
 Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos y reserva de espacios. Permite a los usuarios realizar pagos, gestionar su cuenta y consultar estacionamientos disponibles de manera eficiente.
 
 ## 📌 **Change Log**
-### 1.0.2 | 06/02/2025
+### 1.0.2 | 13/02/2025
 ###### Flutter Mobile App (Android)
 ###### Implementación de la función "Mostrar/Ocultar Saldo".
 ###### Rediseño de la pantalla de "Método de Pago" con mejor distribución.
@@ -14,7 +14,7 @@ Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos 
 ###### Ajuste en el tamaño del logo en la pantalla de inicio y home.
 ###### Mejor distribución de los botones en "Cuenta del Usuario".
 ###### Ajustes en la fuente y colores de la aplicación para mejor accesibilidad.
-### 1.0.1 | 22/01/2025
+### 1.0.1 | 13/02/2025
 #### Flutter Mobile App (Android & iOS)
 ###### Creación de la estructura del proyecto en Flutter con patrón MVC.
 ###### Implementación de la barra de navegación inferior (Home, Servicios, Perfil).
@@ -32,7 +32,7 @@ Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos 
 ###### Se añadieron los íconos en el Bottom Navigation Bar.
 ###### Se integraron botones dinámicos en la pantalla de "Servicios".
 ###### Ajustes en los tamaños de los títulos para mejorar la legibilidad.
-### 1.0.0 | 14/01/2025
+### 1.0.0 | 13/02/2025
 ###### Versión inicial con estructura base en Flutter.
 ###### Creación de pantallas y navegación básica.
 ###### Implementación del diseño inicial para todas las vistas.
