@@ -23,7 +23,7 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
     super.initState();
 
     _animacionController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: Duration(milliseconds: 300),
       vsync: this,
     );
     _fadeIn = CurvedAnimation(parent: _animacionController, curve: Curves.easeIn);
@@ -33,7 +33,7 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
 
   /// Espera a que la pantalla se haya renderizado antes de iniciar la animación de carga
   Future<void> _esperarRenderPantalla() async {
-    await Future.delayed(Duration(milliseconds: 10500)); // Espera a que cargue la pantalla
+    await Future.delayed(Duration(milliseconds: 2000)); // Espera a que cargue la pantalla
     setState(() {
       _pantallaLista = true;
     });

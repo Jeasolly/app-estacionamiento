@@ -1,6 +1,65 @@
 import 'package:flutter/material.dart';
+import '../Controladores/pagar_voucher_controlador.dart';
 
-class CuentaVista extends StatelessWidget {
+class CuentaVista extends StatefulWidget {
+  final String? cardNo;
+  final double? monto;
+  final Map<String, dynamic>? detallesPago;
+
+  CuentaVista({this.cardNo, this.monto, this.detallesPago});
+
+  @override
+  _CuentaVistaState createState() => _CuentaVistaState();
+}
+
+class _CuentaVistaState extends State<CuentaVista> {
+  final PagarVoucherControlador _controlador = PagarVoucherControlador();
+  double saldo = 10000; // Saldo de ejemplo, puede ser dinámico
+  bool _procesando = false;
+
+  void _realizarPago() async {
+    if (widget.monto == null || widget.cardNo == null) {
+      _mostrarMensaje("No hay información de pago disponible.");
+      return;
+    }
+
+    if (saldo < widget.monto!) {
+      _mostrarMensaje("Saldo insuficiente. Agrega fondos.");
+      return;
+    }
+
+    setState(() {
+      _procesando = true;
+    });
+
+    bool exito = await _controlador.actualizarEstadoPago(
+      cardNo: widget.cardNo,
+      monto: widget.monto!,
+    );
+
+    setState(() {
+      _procesando = false;
+    });
+
+    if (exito) {
+      setState(() {
+        saldo -= widget.monto!;
+      });
+      _mostrarMensaje("✅ Pago realizado correctamente.", success: true);
+    } else {
+      _mostrarMensaje("❌ Error al procesar el pago.");
+    }
+  }
+
+  void _mostrarMensaje(String mensaje, {bool success = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: success ? Colors.green : Colors.red,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,20 +79,16 @@ class CuentaVista extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        // Permite hacer scroll si la pantalla es muy pequeña
         child: Container(
           color: Colors.grey.shade100,
           width: double.infinity,
           padding: EdgeInsets.all(16),
           child: Column(
-            // Centra verticalmente todo el contenido
-            mainAxisAlignment: MainAxisAlignment.center,
-            // Centra horizontalmente todo el contenido
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Bienvenida y nombre de usuario
+              // Nombre del usuario
               Text(
-                'Bienvenido',
+                'Hola',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.blueGrey, fontSize: 16),
               ),
@@ -48,26 +103,23 @@ class CuentaVista extends StatelessWidget {
               ),
               SizedBox(height: 20),
 
-              // Card para Saldo
+              // Card del saldo
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Container(
-                  width: 300, // Ajusta el ancho si deseas más pequeño o grande
+                  width: double.infinity,
                   padding: EdgeInsets.all(16),
                   child: Column(
                     children: [
                       Text(
                         'Saldo',
-                        style: TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.blueGrey, fontSize: 16),
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'S/. 2.00',
+                        'S/. ${saldo.toStringAsFixed(2)}',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 22,
@@ -77,14 +129,12 @@ class CuentaVista extends StatelessWidget {
                       SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/metodo_pago');
+                          // Acción para agregar fondos
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade700,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 12,
-                          ),
+                          padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -94,14 +144,70 @@ class CuentaVista extends StatelessWidget {
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
-
                     ],
                   ),
                 ),
               ),
               SizedBox(height: 20),
 
-              // Sección de Movimientos
+              // Sección de pago si hay un monto pendiente
+              if (widget.detallesPago != null) ...[
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Monto a Pagar',
+                          style: TextStyle(
+                            color: Colors.blueGrey,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Total: S/. ${widget.detallesPago!['needAmount'].toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'Descuento: S/. ${widget.detallesPago!['discountAmount'].toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Text(
+                          'Impuesto: S/. ${widget.detallesPago!['taxAmount'].toStringAsFixed(2)}',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: _procesando ? null : _realizarPago,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade800,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: _procesando
+                              ? CircularProgressIndicator()
+                              : Text(
+                            'Pagar',
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+              ],
+
+              // Sección de movimientos
               Text(
                 'Movimientos',
                 textAlign: TextAlign.center,
@@ -113,13 +219,13 @@ class CuentaVista extends StatelessWidget {
               ),
               SizedBox(height: 10),
 
-              // Card para la lista de movimientos
+              // Card de movimientos
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Container(
-                  width: 300,
+                  width: double.infinity,
                   padding: EdgeInsets.all(16),
                   child: Column(
                     children: [
@@ -146,13 +252,11 @@ class CuentaVista extends StatelessWidget {
                       SizedBox(height: 10),
                       OutlinedButton(
                         onPressed: () {
-                          // Navegar a página con historial completo
+                          // Acción para ver más movimientos
                         },
                         style: OutlinedButton.styleFrom(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 12,
-                          ),
+                              horizontal: 30, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -171,7 +275,7 @@ class CuentaVista extends StatelessWidget {
   }
 }
 
-// Widget para cada movimiento
+// Widget reutilizable para los movimientos
 class _MovimientoItem extends StatelessWidget {
   final String titulo;
   final String detalle;
@@ -188,34 +292,10 @@ class _MovimientoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Nombre y fecha
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              titulo,
-              style: TextStyle(fontSize: 16, color: Colors.black),
-            ),
-            SizedBox(height: 3),
-            Text(
-              detalle,
-              style: TextStyle(fontSize: 14, color: Colors.blueGrey),
-            ),
-          ],
-        ),
-        // Monto
-        Text(
-          monto,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: colorMonto,
-          ),
-        ),
-      ],
+    return ListTile(
+      title: Text(titulo),
+      subtitle: Text(detalle),
+      trailing: Text(monto, style: TextStyle(color: colorMonto, fontWeight: FontWeight.bold)),
     );
   }
 }

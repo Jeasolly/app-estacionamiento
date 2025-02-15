@@ -155,6 +155,7 @@ class _PaginaHomeState extends State<PaginaHome> {
 
 // ------------ PÁGINA PERFIL ------------
 class PaginaPerfil extends StatelessWidget {
+  /// Cierra la sesión y elimina los datos de la tabla "licencia" en SQLite
   Future<void> _cerrarSesion(BuildContext context) async {
     final Database db = await openDatabase(
       p.join(await getDatabasesPath(), 'licencia.db'),
@@ -168,22 +169,54 @@ class PaginaPerfil extends StatelessWidget {
     );
   }
 
+  /// Elimina completamente la base de datos SQLite
+  Future<void> _eliminarBaseDeDatos(BuildContext context) async {
+    String dbPath = p.join(await getDatabasesPath(), 'licencia.db');
+
+    try {
+      await deleteDatabase(dbPath);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('✅ Base de datos eliminada correctamente.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Error al eliminar la base de datos: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blue.shade50,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Perfil de Usuario', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _cerrarSesion(context),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Perfil de Usuario'),
+        backgroundColor: Colors.blue.shade900,
+      ),
+      body: Container(
+        color: Colors.blue.shade50,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Perfil de Usuario', style: TextStyle(fontSize: 18)),
+              SizedBox(height: 20),
+
+              // Botón para cerrar sesión
+              ElevatedButton(
+                onPressed: () => _cerrarSesion(context),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
+              ),
+              SizedBox(height: 20),
+
+              // Botón para eliminar la base de datos
+              ElevatedButton(
+                onPressed: () => _eliminarBaseDeDatos(context),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                child: Text('Eliminar Base de Datos', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
         ),
       ),
     );

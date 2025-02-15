@@ -1,82 +1,61 @@
 import 'package:flutter/material.dart';
+import 'escaneo_qr_vista.dart';
+import 'ingreso_manual_vista.dart';
 
 class PagarVoucherVista extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Barra superior
       appBar: AppBar(
         backgroundColor: Colors.blue.shade900,
-        centerTitle: true, // Centra el título
+        centerTitle: true,
         title: Text(
           'Pagar Voucher',
-          style: TextStyle(
-            fontSize: 24,            // Más grande
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-
-      // Contenido
       body: Container(
         color: Colors.grey.shade100,
-        width: double.infinity,          // Ocupar ancho completo
+        width: double.infinity,
         padding: EdgeInsets.all(20),
-        // Centrar el contenido tanto vertical como horizontalmente
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Texto explicativo
             Text(
-              'Escanea tu voucher de estacionamiento para\nconocer el monto a cancelar',
+              'Selecciona una opción para continuar',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.blueGrey,
-                fontSize: 18,
-              ),
+              style: TextStyle(color: Colors.blueGrey, fontSize: 18),
             ),
             SizedBox(height: 30),
-
-            // Ícono central simulando el QR
-            Container(
-              width: 160,
-              height: 160,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 5),
-                borderRadius: BorderRadius.circular(12),
+            // Botón para escanear QR
+            ElevatedButton.icon(
+              icon: Icon(Icons.qr_code_scanner),
+              label: Text("Escanear Ticket"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               ),
-              child: Icon(
-                Icons.qr_code_scanner,
-                size: 100,         // Ícono más grande
-                color: Colors.blue,
-              ),
-            ),
-            SizedBox(height: 30),
-
-            // Botón Validar
-            ElevatedButton(
               onPressed: () {
-                // Navegar a la pantalla de cuenta
-                Navigator.pushNamed(context, '/cuenta');
+                Navigator.push(context, MaterialPageRoute(builder: (context) => EscaneoQRVista()));
               },
+            ),
+            SizedBox(height: 20),
+            // Botón para ingreso manual
+            ElevatedButton.icon(
+              icon: Icon(Icons.keyboard),
+              label: Text("Ingresar Ticket Manualmente"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
               ),
-              child: Text(
-                'Validar',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => IngresoManualVista()));
+              },
             ),
           ],
         ),
