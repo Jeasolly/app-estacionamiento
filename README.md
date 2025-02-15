@@ -4,7 +4,7 @@
 Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos y reserva de espacios. Permite a los usuarios realizar pagos, gestionar su cuenta y consultar estacionamientos disponibles de manera eficiente.
 
 ## 📌 **Change Log**
-### 1.0.2 | 13/02/2025
+### 1.0.2 | 14/02/2025
 # Descripción
 ######  Se implementó la pantalla de bienvenida con animaciones mejoradas.
 ######  Se agregó un efecto de parpadeo en el texto "Toca para comenzar >" para mayor visibilidad.
