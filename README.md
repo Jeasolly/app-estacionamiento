@@ -5,6 +5,32 @@ Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos 
 
 ## 📌 **Change Log**
 ### 1.0.2 | 13/02/2025
+######Se implementó la pantalla de bienvenida con animaciones mejoradas.
+######Se agregó un efecto de parpadeo en el texto "Toca para comenzar >" para mayor visibilidad.
+######Se optimizó la gestión de AnimationController evitando errores con TickerProviderStateMixin.
+######Se corrigieron errores relacionados con la inicialización de variables y la estructura de la animación.
+######Se garantizó que la transición a la pantalla de inicio de sesión o código de licencia sea fluida.
+######Cambios técnicos
+######Se usa TickerProviderStateMixin para manejar múltiples AnimationController correctamente.
+######Se eliminó código redundante y mejoró la estructura de inicialización de animaciones.
+######Pruebas realizadas
+######Se verificó que la animación de bienvenida funciona sin errores.
+######Se confirmó que la navegación entre pantallas se mantiene estable.
+###Backend y APIs
+######Se integraron las APIs para el sistema de cobro del estacionamiento.
+######Se optimizó la comunicación entre la app y el backend para manejar los pagos de manera eficiente.
+######Se agregaron endpoints para la validación de licencias y la gestión de usuarios.
+###Cambios técnicos
+######Se usa TickerProviderStateMixin para manejar múltiples AnimationController correctamente.
+######Se eliminó código redundante y mejoró la estructura de inicialización de animaciones.
+######Se corrigió el error de LateInitializationError con _parpadeo.
+######Se configuraron las llamadas a las APIs de cobro dentro del flujo de la aplicación.
+###Pruebas realizadas
+######Se verificó que la animación de bienvenida funciona sin errores.
+######Se probó el efecto de parpadeo en el texto.
+######Se confirmó que la navegación entre pantallas se mantiene estable.
+######Se validó la correcta comunicación con el backend y las APIs de cobro.
+
 ###### Flutter Mobile App (Android)
 ###### Implementación de la función "Mostrar/Ocultar Saldo".
 ###### Rediseño de la pantalla de "Método de Pago" con mejor distribución.
