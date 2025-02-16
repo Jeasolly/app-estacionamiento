@@ -1,10 +1,12 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'servicios_vista.dart';
-import 'codigo_licencia_vista.dart';
-import 'inicio_sesion_vista.dart';
-import '../controladores/codigo_licencia_controlador.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as p;
+
+import '../controladores/codigo_licencia_controlador.dart';
+import 'servicios_vista.dart';
+import 'inicio_sesion_vista.dart';
+import '../Vistas/perfil/perfil_vista.dart';
 
 class HomeVista extends StatefulWidget {
   @override
@@ -18,7 +20,7 @@ class _HomeVistaState extends State<HomeVista> {
   final List<Widget> _vistas = [
     PaginaHome(),
     ServiciosVista(),
-    PaginaPerfil(),
+    PerfilVista(), // Pantalla de perfil
   ];
 
   @override
@@ -54,7 +56,7 @@ class _HomeVistaState extends State<HomeVista> {
   }
 }
 
-// ------------ PÁGINA HOME (Stateful) ------------
+// ---------------- PÁGINA HOME ----------------
 class PaginaHome extends StatefulWidget {
   @override
   _PaginaHomeState createState() => _PaginaHomeState();
@@ -66,58 +68,24 @@ class _PaginaHomeState extends State<PaginaHome> {
 
   @override
   Widget build(BuildContext context) {
-    final icono = _ocultarSaldo ? Icons.visibility_off : Icons.visibility;
-    final textoBoton = _ocultarSaldo ? 'Mostrar Saldo' : 'Ocultar Saldo';
-
-    return Column(
-      children: [
-        Container(
-          color: Colors.blue.shade900,
-          padding: EdgeInsets.only(top: 40, bottom: 10),
-          width: double.infinity,
-          child: Center(
-            child: Image.asset(
-              'assets/images/logo.png',
-              height: 100,
-            ),
-          ),
-        ),
-        Container(
-          color: Colors.white,
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(icono, color: Colors.blueGrey),
-                onPressed: () {
-                  setState(() {
-                    _ocultarSaldo = !_ocultarSaldo;
-                  });
-                },
-              ),
-              SizedBox(width: 10),
-              Text(
-                textoBoton,
-                style: TextStyle(color: Colors.blueGrey, fontSize: 16),
-              ),
-              Spacer(),
-              Text(
-                _ocultarSaldo ? 'S/ ****' : 'S/ ${_saldo.toStringAsFixed(2)}',
-                style: TextStyle(color: Colors.blueGrey, fontSize: 16),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Container(
-            color: Colors.grey.shade100,
+    return Scaffold(
+      // Para evitar tener 2 AppBars, se deja en blanco y se usa la parte superior decorada
+      backgroundColor: Colors.grey.shade100,
+      body: Column(
+        children: [
+          // Encabezado con degradado
+          _buildEncabezado(),
+          // Sección de Saldo en tarjeta semitransparente
+          _buildTarjetaSaldo(),
+          // Grid de opciones
+          Expanded(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: GridView.count(
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
+                // Ajusta si quieres más o menos children
                 children: [
                   BotonCircular(
                     titulo: 'Pagar Voucher',
@@ -147,74 +115,69 @@ class _PaginaHomeState extends State<PaginaHome> {
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-// ------------ PÁGINA PERFIL ------------
-class PaginaPerfil extends StatelessWidget {
-  /// Cierra la sesión y elimina los datos de la tabla "licencia" en SQLite
-  Future<void> _cerrarSesion(BuildContext context) async {
-    final Database db = await openDatabase(
-      p.join(await getDatabasesPath(), 'licencia.db'),
-    );
-    await db.delete('licencia');
-    await db.close();
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => InicioSesionVista()),
-    );
-  }
-
-  /// Elimina completamente la base de datos SQLite
-  Future<void> _eliminarBaseDeDatos(BuildContext context) async {
-    String dbPath = p.join(await getDatabasesPath(), 'licencia.db');
-
-    try {
-      await deleteDatabase(dbPath);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ Base de datos eliminada correctamente.')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Error al eliminar la base de datos: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Perfil de Usuario'),
-        backgroundColor: Colors.blue.shade900,
+        ],
       ),
-      body: Container(
-        color: Colors.blue.shade50,
+    );
+  }
+
+  /// Construye el encabezado con degradado y logo
+  Widget _buildEncabezado() {
+    return Container(
+      width: double.infinity,
+      height: 140,
+      // Degradado azul oscuro a un tono más claro
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade900, Colors.blue.shade700],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Image.asset(
+            'assets/images/logo.png',
+            height: 80,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Tarjeta sobre el saldo
+  Widget _buildTarjetaSaldo() {
+    final icono = _ocultarSaldo ? Icons.visibility_off : Icons.visibility;
+    final textoBoton = _ocultarSaldo ? 'Mostrar Saldo' : 'Ocultar Saldo';
+
+    return Container(
+      // Ajuste de posición "sobre" el contenedor de arriba
+      transform: Matrix4.translationValues(0, -20, 0),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          color: Colors.white.withOpacity(0.9),
+          child: Row(
             children: [
-              Text('Perfil de Usuario', style: TextStyle(fontSize: 18)),
-              SizedBox(height: 20),
-
-              // Botón para cerrar sesión
-              ElevatedButton(
-                onPressed: () => _cerrarSesion(context),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
+              IconButton(
+                icon: Icon(icono, color: Colors.blueGrey),
+                onPressed: () {
+                  setState(() {
+                    _ocultarSaldo = !_ocultarSaldo;
+                  });
+                },
               ),
-              SizedBox(height: 20),
-
-              // Botón para eliminar la base de datos
-              ElevatedButton(
-                onPressed: () => _eliminarBaseDeDatos(context),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                child: Text('Eliminar Base de Datos', style: TextStyle(color: Colors.white)),
+              SizedBox(width: 10),
+              Text(
+                textoBoton,
+                style: TextStyle(color: Colors.blueGrey, fontSize: 16),
               ),
+              Spacer(),
+              Text(
+                _ocultarSaldo ? 'S/ ****' : 'S/ ${_saldo.toStringAsFixed(2)}',
+                style: TextStyle(color: Colors.blueGrey, fontSize: 16),
+              ),
+              SizedBox(width: 10),
             ],
           ),
         ),
@@ -223,7 +186,7 @@ class PaginaPerfil extends StatelessWidget {
   }
 }
 
-// ------------ BOTÓN CIRCULAR ------------
+// ---------------- BOTÓN CIRCULAR ----------------
 class BotonCircular extends StatelessWidget {
   final String titulo;
   final String imagen;
@@ -242,11 +205,15 @@ class BotonCircular extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Expanded(
+          // Para un look más "material" podemos envolver en un Card
+          Material(
+            elevation: 3,
+            shape: CircleBorder(),
             child: Container(
+              height: 100, // Ajusta según prefieras
+              width: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white,
                 image: DecorationImage(
                   image: AssetImage(imagen),
                   fit: BoxFit.cover,
