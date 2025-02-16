@@ -10,38 +10,55 @@ class BienvenidaVista extends StatefulWidget {
   _BienvenidaVistaState createState() => _BienvenidaVistaState();
 }
 
-class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProviderStateMixin {
+class _BienvenidaVistaState extends State<BienvenidaVista> with TickerProviderStateMixin {
   String _estadoCarga = "";
   bool _mostrarTextoInicio = false;
   bool _mostrarAnimacionCarga = false;
   bool _pantallaLista = false;
+
+  // Controla el fade inicial para el logo
   late AnimationController _animacionController;
   late Animation<double> _fadeIn;
+
+  // Controla el parpadeo del texto "Toca para comenzar"
+  late AnimationController _parpadeoController;
+  late Animation<double> _parpadeoAnim;
 
   @override
   void initState() {
     super.initState();
 
+    // Fade para el logo
     _animacionController = AnimationController(
       duration: Duration(milliseconds: 300),
       vsync: this,
     );
     _fadeIn = CurvedAnimation(parent: _animacionController, curve: Curves.easeIn);
 
+    // Parpadeo para el texto "Toca para comenzar"
+    _parpadeoController = AnimationController(
+      duration: Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true); // Oscila entre 0.3 y 1.0
+
+    _parpadeoAnim = Tween(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _parpadeoController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     _esperarRenderPantalla();
   }
 
-  /// Espera a que la pantalla se haya renderizado antes de iniciar la animación de carga
   Future<void> _esperarRenderPantalla() async {
-    await Future.delayed(Duration(milliseconds: 2000)); // Espera a que cargue la pantalla
+    await Future.delayed(Duration(milliseconds: 2000));
     setState(() {
       _pantallaLista = true;
     });
-
     _iniciarCarga();
   }
 
-  /// Maneja la animación de carga y la verificación de licencia
   Future<void> _iniciarCarga() async {
     setState(() {
       _mostrarAnimacionCarga = true;
@@ -64,18 +81,18 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
     await Future.delayed(Duration(milliseconds: 2500));
 
     setState(() {
-      _mostrarAnimacionCarga = false; // Ocultar la animación de carga
+      _mostrarAnimacionCarga = false; // Ocultar animación de carga
     });
 
-    await Future.delayed(Duration(milliseconds: 500)); // Pequeño delay antes de mostrar "Toca para comenzar"
+    await Future.delayed(Duration(milliseconds: 500));
 
+    // Muestra "Toca para comenzar" y arranca fade en logo
     setState(() {
       _mostrarTextoInicio = true;
       _animacionController.forward();
     });
   }
 
-  /// Obtiene la base de datos SQLite
   Future<Database> _obtenerDB() async {
     return openDatabase(
       p.join(await getDatabasesPath(), 'licencia.db'),
@@ -86,11 +103,9 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
     );
   }
 
-  /// Obtiene la licencia guardada en SQLite
   Future<String?> _obtenerLicenciaDesdeDB() async {
-    final Database db = await _obtenerDB();
+    final db = await _obtenerDB();
     final List<Map<String, dynamic>> maps = await db.query('licencia');
-
     print("Datos encontrados en SQLite: $maps");
 
     if (maps.isNotEmpty) {
@@ -102,15 +117,16 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
   @override
   void dispose() {
     _animacionController.dispose();
+    _parpadeoController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Fondo con imagen fullscreen
       body: Stack(
         children: [
-          // Fondo con imagen
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -120,21 +136,47 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
             ),
           ),
 
-          // Título "Bienvenido"
+          // Encabezado degradado (opcional semitransparente)
           Positioned(
-            top: 40,
-            left: 20,
-            child: Text(
-              'Bienvenido',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.blue.shade900.withOpacity(0.8),
+                    Colors.transparent
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 20, top: 10),
+                  child: Text(
+                    'Bienvenido',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 4,
+                          color: Colors.black45,
+                          offset: Offset(1, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
 
-          // Logo "Park Access" con subtítulo
+          // Logo y subtítulo (Fade in)
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -150,6 +192,13 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 2.0,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 5,
+                              color: Colors.black26,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(height: 5),
@@ -168,7 +217,7 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
             ),
           ),
 
-          // Solo muestra la animación si la pantalla ya se ha renderizado completamente
+          // Animación de carga
           if (_pantallaLista && _mostrarAnimacionCarga)
             Positioned(
               bottom: 80,
@@ -177,7 +226,7 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(color: Colors.white),
                   SizedBox(height: 10),
                   Text(
                     _estadoCarga,
@@ -185,13 +234,20 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
                       color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 3,
+                          color: Colors.black26,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
 
-          // Botón "Toca para comenzar" solo aparece después de la animación
+          // Texto "Toca para comenzar" con parpadeo
           if (_pantallaLista && _mostrarTextoInicio)
             Positioned(
               bottom: 40,
@@ -199,7 +255,7 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
               right: 0,
               child: Center(
                 child: FadeTransition(
-                  opacity: _fadeIn,
+                  opacity: _parpadeoAnim, // Animación de parpadeo
                   child: GestureDetector(
                     onTap: () async {
                       String? licenciaGuardada = await _obtenerLicenciaDesdeDB();
@@ -215,12 +271,26 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with SingleTickerProv
                         );
                       }
                     },
-                    child: Text(
-                      'Toca para comenzar >',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Toca para comenzar >',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 3,
+                              color: Colors.black26,
+                              offset: Offset(1, 1),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
