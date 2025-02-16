@@ -25,7 +25,7 @@ Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos 
 ###### Se probó el efecto de parpadeo en el texto de inicio y su correcto funcionamiento en diferentes dispositivos.
 ###### Se confirmó que la navegación entre pantallas se mantenga estable sin errores de transición.
 ###### Se validó la correcta comunicación con el backend y las APIs de cobro.
-### 1.0.2 | 14/02/2025
+# Versión 1.0.2 | 14/02/2025
 # Descripción
 ######  Se implementó la pantalla de bienvenida con animaciones mejoradas.
 ######  Se agregó un efecto de parpadeo en el texto "Toca para comenzar >" para mayor visibilidad.
@@ -56,7 +56,7 @@ Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos 
 ###### Ajuste en el tamaño del logo en la pantalla de inicio y home.
 ###### Mejor distribución de los botones en "Cuenta del Usuario".
 ###### Ajustes en la fuente y colores de la aplicación para mejor accesibilidad.
-### 1.0.1 | 13/02/2025
+# Versión 1.0.1 | 13/02/2025
 #### Flutter Mobile App (Android & iOS)
 ###### Creación de la estructura del proyecto en Flutter con patrón MVC.
 ###### Implementación de la barra de navegación inferior (Home, Servicios, Perfil).
@@ -74,7 +74,7 @@ Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos 
 ###### Se añadieron los íconos en el Bottom Navigation Bar.
 ###### Se integraron botones dinámicos en la pantalla de "Servicios".
 ###### Ajustes en los tamaños de los títulos para mejorar la legibilidad.
-### 1.0.0 | 13/02/2025
+# Versión 1.0.0 | 13/02/2025
 ###### Versión inicial con estructura base en Flutter.
 ###### Creación de pantallas y navegación básica.
 ###### Implementación del diseño inicial para todas las vistas.
