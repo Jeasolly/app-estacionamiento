@@ -1,9 +1,30 @@
 # **App Estacionamiento
-## ****Versión 1.0.0 | Última actualización: 13/02/2025
+## ****Versión 1.0.0 | Última actualización: 15/02/2025
 
-Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos y reserva de espacios. Permite a los usuarios realizar pagos, gestionar su cuenta y consultar estacionamientos disponibles de manera eficiente.
+Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos online. Permite a los usuarios realizar pagos utilizando tarjetas y varios medios de pago como yape, gestionar su cuenta de manera eficiente.
 
 ## 📌 **Change Log**
+# Versión 1.0.2 | 15/02/2025
+## 🚀 Mejoras en la Interfaz de Usuario
+###### Se optimizó el diseño de la pantalla de bienvenida con animaciones mejoradas.
+###### Se implementó un efecto de parpadeo en el texto "Toca para comenzar >" para mejorar la visibilidad.
+###### Se mejoró el diseño de las tarjetas en la pantalla de Mi Cuenta, haciendo que ocupen todo el ancho de la pantalla y sean completamente responsivas.
+###### Se corrigieron problemas de alineación en los botones de acción dentro de las pantallas de perfil y billetera.
+###### Se añadió un carrusel de banners en la pantalla de inicio para destacar promociones y mensajes importantes.
+## 🛠️ Correcciones y Optimización
+###### Se optimizó la gestión de AnimationController para evitar errores con TickerProviderStateMixin.
+###### Se corrigieron errores de inicialización de variables que afectaban la animación en la pantalla de bienvenida.
+###### Se mejoró la fluidez de las transiciones entre la pantalla de inicio de sesión y la validación de código de licencia.
+###### Se ajustó la estructura del código para evitar redundancias en las animaciones.
+## 🔌 Integración con Backend y APIs
+###### Se integraron las APIs de cobro dentro del sistema de estacionamientos.
+###### Se optimizó la comunicación entre la aplicación y el servidor para manejar pagos de manera más eficiente.
+###### Se configuraron correctamente las llamadas a las APIs de validación de licencias y administración de usuarios.
+## 🧪 Pruebas Realizadas
+###### Se verificó que la animación de bienvenida se ejecute sin errores.
+###### Se probó el efecto de parpadeo en el texto de inicio y su correcto funcionamiento en diferentes dispositivos.
+###### Se confirmó que la navegación entre pantallas se mantenga estable sin errores de transición.
+###### Se validó la correcta comunicación con el backend y las APIs de cobro.
 ### 1.0.2 | 14/02/2025
 # Descripción
 ######  Se implementó la pantalla de bienvenida con animaciones mejoradas.
