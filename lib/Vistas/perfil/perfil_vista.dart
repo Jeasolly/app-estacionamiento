@@ -24,9 +24,8 @@ class _PerfilVistaState extends State<PerfilVista> {
     _cargarImagenPerfil();
   }
 
-  /// Carga la imagen de perfil desde SQLite
   Future<void> _cargarImagenPerfil() async {
-    final db = await _obtenerBaseDeDatos();
+    final db = await _obtenerBaseDeDatosPerfil();
     final List<Map<String, dynamic>> maps = await db.query('perfil');
     if (maps.isNotEmpty) {
       setState(() {
@@ -35,7 +34,6 @@ class _PerfilVistaState extends State<PerfilVista> {
     }
   }
 
-  /// Abre el selector de imágenes, la guarda en la DB y actualiza el state
   Future<void> _seleccionarImagen() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
@@ -44,17 +42,15 @@ class _PerfilVistaState extends State<PerfilVista> {
     final String fileName = p.basename(pickedFile.path);
     final File savedImage = await File(pickedFile.path).copy('${appDir.path}/$fileName');
 
-    final db = await _obtenerBaseDeDatos();
-    await db.insert('perfil', {'imagen': savedImage.path},
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final db = await _obtenerBaseDeDatosPerfil();
+    await db.insert('perfil', {'imagen': savedImage.path}, conflictAlgorithm: ConflictAlgorithm.replace);
 
     setState(() {
       _imagePath = savedImage.path;
     });
   }
 
-  /// Abre/construye la base de datos local 'perfil.db'
-  Future<Database> _obtenerBaseDeDatos() async {
+  Future<Database> _obtenerBaseDeDatosPerfil() async {
     return openDatabase(
       p.join(await getDatabasesPath(), 'perfil.db'),
       onCreate: (db, version) {
@@ -64,45 +60,76 @@ class _PerfilVistaState extends State<PerfilVista> {
     );
   }
 
+  Future<Database> _obtenerBaseDeDatosLicencia() async {
+    return openDatabase(
+      p.join(await getDatabasesPath(), 'licencia.db'),
+      onCreate: (db, version) {
+        return db.execute("CREATE TABLE licencia(id INTEGER PRIMARY KEY, codigo TEXT)");
+      },
+      version: 1,
+    );
+  }
+
+  Future<void> _resetearBaseDeDatos() async {
+    final perfilDBPath = p.join(await getDatabasesPath(), 'perfil.db');
+    final licenciaDBPath = p.join(await getDatabasesPath(), 'licencia.db');
+
+    if (await File(perfilDBPath).exists()) {
+      await deleteDatabase(perfilDBPath);
+    }
+    if (await File(licenciaDBPath).exists()) {
+      await deleteDatabase(licenciaDBPath);
+    }
+
+    setState(() {
+      _imagePath = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Base de datos de perfil y licencia reseteadas correctamente.'), backgroundColor: Colors.green),
+    );
+  }
+
+  void _confirmarReset() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Resetear base de datos'),
+        content: Text('¿Estás seguro de que deseas borrar todos los datos de perfil y licencia?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _resetearBaseDeDatos();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Resetear', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Sin AppBar tradicional, usaré un encabezado con degradado
       backgroundColor: Colors.grey.shade100,
       body: Column(
         children: [
-          // Encabezado con degradado
           _buildEncabezado(),
-          // Tarjeta flotante con info de perfil
           _buildTarjetaPerfil(),
-          // Expand las opciones de menú
           Expanded(
             child: ListView(
               children: [
-                _construirOpcionMenu(
-                  context,
-                  Icons.account_balance_wallet,
-                  'Billetera',
-                  BilleteraVista(),
-                ),
-                _construirOpcionMenu(
-                  context,
-                  Icons.help,
-                  'Ayuda y soporte',
-                  SoporteVista(),
-                ),
-                _construirOpcionMenu(
-                  context,
-                  Icons.privacy_tip,
-                  'Política de privacidad',
-                  PrivacidadVista(),
-                ),
-                _construirOpcionMenu(
-                  context,
-                  Icons.rule,
-                  'Términos y condiciones',
-                  TerminosVista(),
-                ),
+                _construirOpcionMenu(context, Icons.account_balance_wallet, 'Billetera', BilleteraVista()),
+                _construirOpcionMenu(context, Icons.help, 'Ayuda y soporte', SoporteVista()),
+                _construirOpcionMenu(context, Icons.privacy_tip, 'Política de privacidad', PrivacidadVista()),
+                _construirOpcionMenu(context, Icons.rule, 'Términos y condiciones', TerminosVista()),
+                _construirBotonResetearDB(context),
                 _construirBotonCerrarSesion(context),
               ],
             ),
@@ -112,7 +139,6 @@ class _PerfilVistaState extends State<PerfilVista> {
     );
   }
 
-  /// Construye el encabezado con degradado azul
   Widget _buildEncabezado() {
     return Container(
       width: double.infinity,
@@ -128,18 +154,13 @@ class _PerfilVistaState extends State<PerfilVista> {
         child: Center(
           child: Text(
             'Perfil',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
       ),
     );
   }
 
-  /// Tarjeta blanca con info principal (foto, nombre, email, botón Editar)
   Widget _buildTarjetaPerfil() {
     return Container(
       transform: Matrix4.translationValues(0, -20, 0),
@@ -151,7 +172,6 @@ class _PerfilVistaState extends State<PerfilVista> {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              // Foto con ícono de cámara
               Center(
                 child: Stack(
                   alignment: Alignment.bottomRight,
@@ -165,10 +185,7 @@ class _PerfilVistaState extends State<PerfilVista> {
                     ),
                     Container(
                       margin: EdgeInsets.only(right: 4, bottom: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade700,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: Colors.green.shade700, shape: BoxShape.circle),
                       child: IconButton(
                         icon: Icon(Icons.camera_alt, color: Colors.white),
                         onPressed: _seleccionarImagen,
@@ -178,35 +195,13 @@ class _PerfilVistaState extends State<PerfilVista> {
                 ),
               ),
               SizedBox(height: 12),
-
-              // Nombre
-              Text(
-                'Nombre de Usuario',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade900,
-                ),
-              ),
+              Text('Jean Pierre GV', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
               SizedBox(height: 4),
-
-              // Correo
-              Text(
-                'usuario@email.com',
-                style: TextStyle(color: Colors.grey.shade700),
-              ),
+              Text('jpieritop@email.com', style: TextStyle(color: Colors.grey.shade700)),
               SizedBox(height: 12),
-
-              // Botón "Editar perfil"
               ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditarPerfilVista()),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade700,
-                  foregroundColor: Colors.white,
-                ),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditarPerfilVista())),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade700, foregroundColor: Colors.white),
                 child: Text('Editar perfil'),
               ),
             ],
@@ -216,47 +211,31 @@ class _PerfilVistaState extends State<PerfilVista> {
     );
   }
 
-  Widget _construirOpcionMenu(
-      BuildContext context, IconData icono, String titulo, Widget destino) {
+  Widget _construirOpcionMenu(BuildContext context, IconData icono, String titulo, Widget destino) {
     return ListTile(
       leading: Icon(icono, color: Colors.blue.shade900),
-      title: Text(
-        titulo,
-        style: TextStyle(color: Colors.blue.shade900, fontWeight: FontWeight.w500),
-      ),
+      title: Text(titulo, style: TextStyle(color: Colors.blue.shade900, fontWeight: FontWeight.w500)),
       trailing: Icon(Icons.arrow_forward_ios, color: Colors.blue.shade900, size: 16),
-      onTap: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (context) => destino)),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => destino)),
+    );
+  }
+
+  Widget _construirBotonResetearDB(BuildContext context) {
+    return ListTile(
+      leading: Icon(Icons.refresh, color: Colors.orange.shade700),
+      title: Text('Resetear Datos', style: TextStyle(color: Colors.orange.shade700, fontWeight: FontWeight.w500)),
+      trailing: Icon(Icons.warning, color: Colors.orange.shade700, size: 16),
+      onTap: _confirmarReset,
     );
   }
 
   Widget _construirBotonCerrarSesion(BuildContext context) {
     return ListTile(
       leading: Icon(Icons.logout, color: Colors.red.shade700),
-      title: Text(
-        'Cerrar sesión',
-        style: TextStyle(color: Colors.red.shade700),
-      ),
+      title: Text('Cerrar sesión', style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.w500)),
+      trailing: Icon(Icons.exit_to_app, color: Colors.red.shade700, size: 16),
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Cerrar sesión'),
-            content: Text('¿Estás seguro de que quieres cerrar sesión?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  // Lógica para cerrar sesión
-                },
-                child: Text('Sí, cerrar sesión'),
-              ),
-            ],
-          ),
-        );
+        Navigator.pop(context);
       },
     );
   }
