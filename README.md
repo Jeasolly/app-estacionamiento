@@ -1,5 +1,5 @@
 # **App Estacionamiento
-## ****Versión 1.0.0 | Última actualización: 15/02/2025
+## ****Versión 1.0.0 | Última actualización: 19/02/2025
 
 Aplicación desarrollada en Flutter para la gestión de estacionamientos, pagos online. Permite a los usuarios realizar pagos utilizando tarjetas y varios medios de pago como yape, gestionar su cuenta de manera eficiente.
 
