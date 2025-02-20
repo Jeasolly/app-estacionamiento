@@ -79,6 +79,11 @@ flutter:
       - assets/images/reservas.png
       - assets/images/proximamente.png
       - assets/images/tarjetas.png
+      - assets/images/img_bg.png
+      - assets/images/baground.png
+      - assets/images/bienvenido2.png
+      - assets/images/cargando.gif
+
 
 
 

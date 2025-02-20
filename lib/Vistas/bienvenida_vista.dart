@@ -16,30 +16,27 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with TickerProviderSt
   bool _mostrarAnimacionCarga = false;
   bool _pantallaLista = false;
 
-  // Controla el fade inicial para el logo
   late AnimationController _animacionController;
   late Animation<double> _fadeIn;
-
-  // Controla el parpadeo del texto "Toca para comenzar"
   late AnimationController _parpadeoController;
   late Animation<double> _parpadeoAnim;
+  late AnimationController _fadeOutController;
+  late Animation<double> _fadeOutAnim;
 
   @override
   void initState() {
     super.initState();
 
-    // Fade para el logo
     _animacionController = AnimationController(
       duration: Duration(milliseconds: 300),
       vsync: this,
     );
     _fadeIn = CurvedAnimation(parent: _animacionController, curve: Curves.easeIn);
 
-    // Parpadeo para el texto "Toca para comenzar"
     _parpadeoController = AnimationController(
       duration: Duration(seconds: 1),
       vsync: this,
-    )..repeat(reverse: true); // Oscila entre 0.3 y 1.0
+    )..repeat(reverse: true);
 
     _parpadeoAnim = Tween(begin: 0.3, end: 1.0).animate(
       CurvedAnimation(
@@ -47,6 +44,16 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with TickerProviderSt
         curve: Curves.easeInOut,
       ),
     );
+
+    _fadeOutController = AnimationController(
+      duration: Duration(milliseconds: 600), // Duración de fade-out
+      vsync: this,
+    );
+
+    _fadeOutAnim = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
+      parent: _fadeOutController,
+      curve: Curves.easeOut,
+    ));
 
     _esperarRenderPantalla();
   }
@@ -81,12 +88,11 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with TickerProviderSt
     await Future.delayed(Duration(milliseconds: 2500));
 
     setState(() {
-      _mostrarAnimacionCarga = false; // Ocultar animación de carga
+      _mostrarAnimacionCarga = false;
     });
 
     await Future.delayed(Duration(milliseconds: 500));
 
-    // Muestra "Toca para comenzar" y arranca fade en logo
     setState(() {
       _mostrarTextoInicio = true;
       _animacionController.forward();
@@ -114,131 +120,110 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with TickerProviderSt
     return null;
   }
 
+  void _onTapParaComenzar() async {
+    _fadeOutController.forward(); // Inicia el efecto de desvanecimiento
+
+    await Future.delayed(Duration(milliseconds: 600)); // Espera a que termine el fade-out
+
+    String? licenciaGuardada = await _obtenerLicenciaDesdeDB();
+    Widget siguienteVista = (licenciaGuardada != null && licenciaGuardada.isNotEmpty)
+        ? InicioSesionVista()
+        : CodigoLicenciaVista();
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 600),
+        pageBuilder: (context, animation, secondaryAnimation) => FadeTransition(
+          opacity: animation,
+          child: siguienteVista,
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _animacionController.dispose();
     _parpadeoController.dispose();
+    _fadeOutController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Fondo con imagen fullscreen
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/fondo_bienvenida.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          // Encabezado degradado (opcional semitransparente)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 120,
+      body: FadeTransition(
+        opacity: _fadeOutAnim,
+        child: Stack(
+          children: [
+            Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.blue.shade900.withOpacity(0.8),
-                    Colors.transparent
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/bienvenido2.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 20, top: 10),
-                  child: Text(
-                    'Bienvenido',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 4,
-                          color: Colors.black45,
-                          offset: Offset(1, 2),
-                        ),
-                      ],
+            ),
+
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.blue.shade900.withOpacity(0.8),
+                      Colors.transparent
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 20, top: 10),
+                    child: Text(
+                      'Bienvenido',
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        shadows: [Shadow(blurRadius: 5, color: Colors.black, offset: Offset(2, 2))],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Logo y subtítulo (Fade in)
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FadeTransition(
-                  opacity: _fadeIn,
-                  child: Column(
-                    children: [
-                      Text(
-                        "PARK ACCESS",
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 2.0,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 5,
-                              color: Colors.black26,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        "Parking System v1.0.2",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Animación de carga
-          if (_pantallaLista && _mostrarAnimacionCarga)
-            Positioned(
-              bottom: 80,
-              left: 0,
-              right: 0,
+            Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(color: Colors.white),
-                  SizedBox(height: 10),
-                  Text(
-                    _estadoCarga,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 3,
-                          color: Colors.black26,
-                          offset: Offset(1, 1),
+                  FadeTransition(
+                    opacity: _fadeIn,
+                    child: Column(
+                      children: [
+                        Text(
+                          "PARK ACCESS",
+                          style: TextStyle(
+                            fontSize: 44,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            shadows: [Shadow(blurRadius: 6, color: Colors.black, offset: Offset(2, 2))],
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "Parking System v1.0.2",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            shadows: [Shadow(blurRadius: 6, color: Colors.black, offset: Offset(2, 2))],
+                          ),
                         ),
                       ],
                     ),
@@ -247,57 +232,54 @@ class _BienvenidaVistaState extends State<BienvenidaVista> with TickerProviderSt
               ),
             ),
 
-          // Texto "Toca para comenzar" con parpadeo
-          if (_pantallaLista && _mostrarTextoInicio)
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: FadeTransition(
-                  opacity: _parpadeoAnim, // Animación de parpadeo
-                  child: GestureDetector(
-                    onTap: () async {
-                      String? licenciaGuardada = await _obtenerLicenciaDesdeDB();
-                      if (licenciaGuardada != null && licenciaGuardada.isNotEmpty) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => InicioSesionVista()),
-                        );
-                      } else {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => CodigoLicenciaVista()),
-                        );
-                      }
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(20),
+            if (_pantallaLista && _mostrarAnimacionCarga)
+              Positioned(
+                bottom: 80,
+                left: 0,
+                right: 0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 10),
+                    Text(
+                      _estadoCarga,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        shadows: [Shadow(blurRadius: 4, color: Colors.black, offset: Offset(2, 2))],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+
+            if (_pantallaLista && _mostrarTextoInicio)
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: FadeTransition(
+                    opacity: _parpadeoAnim,
+                    child: GestureDetector(
+                      onTap: _onTapParaComenzar,
                       child: Text(
                         'Toca para comenzar >',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 30,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 3,
-                              color: Colors.black26,
-                              offset: Offset(1, 1),
-                            ),
-                          ],
+                          shadows: [Shadow(blurRadius: 4, color: Colors.black, offset: Offset(2, 2))],
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
